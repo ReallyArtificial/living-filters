@@ -1,0 +1,18 @@
+{
+  "name": "living-filters",
+  "version": "0.1.0",
+  "description": "Describe what deserves your attention. A CLI that asks Jev one small judgment per GitHub issue or dependency release and prints a ranked list with reasons.",
+  "type": "module",
+  "bin": { "lf": "src/cli.mjs" },
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test",
+    "check": "node --test && node src/cli.mjs cases weekend-fixes --check && node src/cli.mjs cases stack-breakers --check"
+  },
+  "engines": { "node": ">=20.17.0" },
+  "repository": { "type": "git", "url": "https://github.com/ReallyArtificial/living-filters.git" },
+  "homepage": "https://github.com/ReallyArtificial/living-filters#readme",
+  "bugs": { "url": "https://github.com/ReallyArtificial/living-filters/issues" },
+  "keywords": ["jev", "typesafe", "github", "issues", "releases", "attention", "filters", "cli"],
+  "license": "MIT"
+}

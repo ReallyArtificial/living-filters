@@ -1,0 +1,17 @@
+# Releases of my dependencies whose notes suggest something could break for this stack.
+name: stack-breakers-engram
+kind: stack-breakers
+project: ../../engram         # directory with package.json, relative to this file (here: a sibling checkout of ReallyArtificial/engram)
+include_dev: false
+stack: |
+  Node 20 ESM service. better-sqlite3 for storage with sqlite-vec, the MCP SDK
+  for a stdio server, Vercel AI SDK v4 with the OpenAI provider (generateText,
+  embed), zod v3 schemas at every boundary, chrono-node for date parsing.
+  Runs on macOS and Linux CI.
+preflight:
+  skip_prerelease: true
+  patch_needs_keyword: true   # hide patch bumps unless the notes mention break/deprecat/remov/migrat/drop
+  max_per_package: 3          # newest N releases above the installed version
+  max_body_chars: 2500
+limits:
+  max_judgments: 25

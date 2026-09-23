@@ -1,0 +1,17 @@
+# Issues I could plausibly fix over one weekend.
+name: weekend-fixes
+kind: weekend-fixes
+repos: [ReallyArtificial/freeport, ReallyArtificial/engram, ReallyArtificial/mcp-jest]
+hours: 8
+profile: |
+  Comfortable in TypeScript and Node; rusty Python; no Rust or Go.
+  About eight focused hours over a weekend. Prefers code over docs but will
+  write docs for a tool I already use. Likes CLIs, test infrastructure, and
+  HTTP plumbing. Avoids UI work and anything needing a paid third-party account.
+preflight:
+  skip_labels: [wontfix, duplicate, invalid, in progress, blocked, needs discussion]
+  skip_assigned: true
+  stale_days: 365          # hide if 0 comments AND last updated longer ago than this
+  max_body_chars: 1500
+limits:
+  max_judgments: 25
