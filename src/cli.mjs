@@ -109,4 +109,4 @@ async function main() {
   throw new Error(`Unknown command "${command}".\n\n${USAGE}`);
 }
 
-main().catch((e) => { console.error(e.message); process.exitCode = 1; });
+main().catch((e) => { console.error(e.cause ? `${e.message}: ${e.cause.code ?? ''} ${e.cause.message ?? ''}`.trim() : e.message); process.exitCode = 1; });

@@ -40,3 +40,13 @@ test('validates locally supported request shapes and rubric limits', () => {
   assert.throws(() => validateRequest({ ...request, questions: { x: { type: 'score', instructions: 'How severe?', criteria: ['One'] } } }), /2–10/);
   assert.throws(() => validateRequest({ ...request, questions: { x: { type: 'choice', instructions: '', criteria: { a: 'A', b: 'B' } } } }), /instructions/);
 });
+
+test('score tolerance allows two-decimal rounding drift but not a real mismatch', () => {
+  // Live jev-1.13.0 answer shape: rounded probabilities and a rounded score that differ by more than 0.01 on three levels.
+  const r = valid();
+  r.answers.severity.probabilities = { 0: 0.32, 1: 0.15, 2: 0.53 }; // mean 1.21
+  r.answers.severity.score = 1.225;                                   // drift 0.015 < 0.02 tolerance for 3 levels
+  validateResponse(r, questions);
+  r.answers.severity.score = 1.25;                                    // drift 0.04
+  assert.throws(() => validateResponse(r, questions), /score inconsistent/);
+});

@@ -47,11 +47,12 @@ export function formatRun(filter, report, seenFile) {
     lines.push(`           ${r.outcome.reason}${r.tags?.length ? `   [${r.tags.join(', ')}]` : ''}${r.provenance === 'seen-store' ? '   (seen)' : ''}`);
     lines.push(`           ${r.url}`);
   }
-  const ask = report.results.filter(r => r.outcome?.action === 'needs-more-info');
+  const ask = report.results.filter(r => r.outcome?.action === 'needs-more-info' && r.provenance !== 'cap');
   if (ask.length) {
     lines.push('', `Needs more info (${ask.length})`);
     for (const r of ask) lines.push(`     ${r.label}   ${r.title} — ${r.outcome.reason}`);
   }
+  if (s.capped) lines.push('', `Not yet judged: ${s.capped} item${s.capped === 1 ? '' : 's'} past the cap of ${s.cap}. Rerun to continue, or raise --limit.`);
   const hidden = report.results.filter(r => r.outcome?.action === 'hide');
   lines.push('', `Hidden: ${hidden.filter(r => r.provenance !== 'deterministic-preflight-no-model-call').length} judged, ${s.preflight} by preflight. Use --json for reasons.`);
   lines.push(`${s.judged} request${s.judged === 1 ? '' : 's'} · ${s.inputTokens.toLocaleString('en-US')} input tokens · est. ${money(s.estimatedCostUsd)} (${report.requestedModel} price snapshot ${DOCS_VERIFIED_ON}) · ${seconds(s.elapsedMs)}`);

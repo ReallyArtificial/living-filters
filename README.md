@@ -8,7 +8,7 @@ A living filter is a small file that says what you care about. `lf` fetches the 
 
 By [Really Artificial](https://github.com/ReallyArtificial) · JavaScript · Node.js 20.17+ · Zero dependencies · [MIT](LICENSE)
 
-**Status:** v0.1.0. Two filters, eleven authored cases, all policy proven offline. The GitHub fetching and dry runs have been exercised against real repositories. **Live Jev judgments have not yet been run**; the first live report will be linked here when it exists.
+**Status:** v0.1.0. Two filters, eleven authored cases, all policy proven offline. Both filters have had one live run against real repositories with `jev-1.13.0`; the numbers, the answers and one contract bug it found are in [docs/first-live-run.md](docs/first-live-run.md). That is one run, not measured accuracy.
 
 ## Start in thirty seconds
 
@@ -93,6 +93,7 @@ flowchart LR
 - **Questions** are the [Jev primitives](docs/api-contract.md): `choice`, `score`, `noul`. Each names the state fields it reads and none refers to another answer.
 - **Policy** is plain JavaScript you can read in `src/filters/<kind>/filter.mjs`. Every outcome is `show`, `needs-more-info` or `hide`, with a reason and a score that only orders items within an action.
 - **Seen store.** Paid verdicts are kept in `~/.living-filters/seen/<name>.json`, keyed by item and its last update, so a rerun judges only what changed. `--all` re-judges everything.
+- **Limitation.** For a monorepo, the releases endpoint returns the 50 newest releases across every package in it, so a package that releases rarely inside a busy monorepo can be missed.
 - **Cap.** `--limit` (default `limits.max_judgments`) bounds paid requests per run. Items past the cap are listed under "needs more info" and picked up next run. Tokens and an estimated cost are printed after every live run.
 
 ## Fixture mode and live mode

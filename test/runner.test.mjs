@@ -95,3 +95,20 @@ test('the seen store round-trips through disk under LIVING_FILTERS_HOME', () => 
   assert.deepEqual(loadSeen('weekend-fixes'), verdicts);
   delete process.env.LIVING_FILTERS_HOME;
 });
+
+test('a response that fails the contract marks that item and the run continues; it is not stored', async () => {
+  const calls = [];
+  const client = async (request) => {
+    calls.push(request);
+    const noul = calls.length === 2 ? 1.7 : 0.7; // out of range on the second item
+    return { response: { model: 'jev-1.13.0', answers: { ok: { type: 'noul', noul } }, usage: { input_tokens: 100, output_tokens: 0 } }, elapsedMs: 1, attempts: 1 };
+  };
+  const run = await runFilter(synthetic, {}, items(4), { live: true, client, limit: 10 });
+  assert.equal(run.error, null);
+  assert.equal(calls.length, 4);
+  assert.equal(run.summary.invalidResponses, 1);
+  const bad = run.results.find(r => r.provenance === 'invalid-response');
+  assert.equal(bad.key, 'item-02@1');
+  assert.equal(bad.outcome.action, 'needs-more-info');
+  assert.deepEqual(Object.keys(run.seen).sort(), ['item-01@1', 'item-03@1', 'item-04@1']);
+});

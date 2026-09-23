@@ -37,7 +37,9 @@ export function validateResponse(response, questions) {
     } else {
       assert(typeof a.score === 'number' && Number.isFinite(a.score) && a.score >= 0 && a.score <= keys.length - 1, `${id}: invalid score`);
       const mean = keys.reduce((total, key) => total + Number(key) * a.probabilities[key], 0);
-      assert(Math.abs(a.score - mean) <= 0.01, `${id}: score inconsistent with distribution`);
+      // Jev rounds score and each probability to two decimals independently; with N levels the rounded mean can drift by 0.005 * N(N-1)/2, plus 0.005 on the score itself. Observed live on 2026-09-23.
+      const tolerance = 0.005 * (1 + keys.length * (keys.length - 1) / 2);
+      assert(Math.abs(a.score - mean) <= tolerance, `${id}: score inconsistent with distribution`);
       assert(object(a.legend) && sameKeys(Object.keys(a.legend), keys), `${id}: legend keys mismatch`);
     }
   }

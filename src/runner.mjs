@@ -73,7 +73,12 @@ export async function runFilter(filter, config, items, { live = false, model = D
       if (judged >= limit) { results.push(row(filter, item, { request, outcome: decision('needs-more-info', `Judgment cap (${limit}) reached; rerun to continue.`, { score: 0 }), provenance: 'cap' })); continue; }
       onProgress(judged + 1, limit, filter.label(item));
       const { response, elapsedMs, attempts } = await client(request);
-      validateResponse(response, request.questions);
+      try { validateResponse(response, request.questions); } catch (e) {
+        // One malformed answer marks one item; it is not stored, so the next run retries it.
+        results.push(row(filter, item, { request, response, outcome: decision('needs-more-info', `Response failed the contract (${e.message}); rerun to retry.`, { score: 0 }), provenance: 'invalid-response', elapsedMs, attempts, inputTokens: response?.usage?.input_tokens ?? 0 }));
+        judged++; inputTokens += response?.usage?.input_tokens ?? 0;
+        continue;
+      }
       judged++; inputTokens += response.usage.input_tokens; if (response.model === PRICED_MODEL) pricedTokens += response.usage.input_tokens;
       const outcome = filter.decide(request.state, response.answers);
       results.push(row(filter, item, { request, requestSha256: digest(request), response, outcome, provenance: 'live-typesafe-api', elapsedMs, attempts, inputTokens: response.usage.input_tokens, estimatedCostUsd: costOf(response) }));
@@ -84,7 +89,7 @@ export async function runFilter(filter, config, items, { live = false, model = D
   return {
     results, seen, error,
     summary: {
-      fetched: items.length, preflight: count('deterministic-preflight-no-model-call'), judged, fromSeenStore: count('seen-store'), capped: count('cap'),
+      fetched: items.length, preflight: count('deterministic-preflight-no-model-call'), judged, fromSeenStore: count('seen-store'), capped: count('cap'), invalidResponses: count('invalid-response'),
       wouldSend: count('dry-run-not-sent'), cap: limit, inputTokens, estimatedCostUsd: live ? Math.round(pricedTokens * USD_PER_INPUT_TOKEN * 1e8) / 1e8 : null, elapsedMs: Math.round(performance.now() - started),
     },
   };
